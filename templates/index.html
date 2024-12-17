@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta http-equiv="X-UA-Compatible" content="ie=edge">
+	<title>Sign Language Detection</title>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css"
+		integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<style>
+			body {
+				font-family: 'Arial', sans-serif;
+				background: linear-gradient(135deg, #f3f8ff, #dce7ff);
+				margin: 0;
+				color: #333;
+			}
+		
+			h3 {
+				color: #364f6b;
+				font-size: 32px;
+				font-weight: bold;
+				margin-bottom: 20px;
+				text-align: center;
+				letter-spacing: 1px;
+			}
+		
+			.iupload h3 {
+				color: #1b2d6b;
+				font-size: 30px;
+				font-weight: 700;
+				text-transform: uppercase;
+			}
+		
+			.img-part-1 {
+				height: 300px;
+				width: 300px;
+				margin: 20px auto;
+			}
+		
+			.image-part {
+				height: 300px;
+				width: 300px;
+				border: 2px solid #1b2d6b;
+				border-radius: 10px;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+				background-color: #ffffff;
+			}
+		
+			.image-part img,
+			.image-part #video {
+				height: 100%;
+				width: 100%;
+				border-radius: 10px;
+			}
+		
+			.res-part {
+				height: 400px;
+				width: 100%;
+				padding: 10px;
+				margin: 20px auto;
+				background-color: #f9fbff;
+				border: 1px solid #e0e8ff;
+				border-radius: 10px;
+				overflow-y: auto;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			}
+		
+			.upload-image {
+				height: 400px;
+				width: auto;
+				padding: 10px;
+				background: #ffffff;
+				border: 1px solid #e0e8ff;
+				border-radius: 10px;
+				box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+				overflow: auto;
+				margin: 20px auto;
+			}
+		
+			.resp-img {
+				height: 100%;
+				width: auto;
+				display: block;
+				margin: 0 auto;
+				border-radius: 10px;
+			}
+		
+			button.btn-primary,
+			button.btn-success {
+				font-size: 18px;
+				padding: 12px 20px;
+				border-radius: 5px;
+				border: none;
+				transition: background-color 0.3s ease;
+				box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+			}
+		
+			button.btn-primary:hover {
+				background-color: #0078ff;
+				color: #fff;
+			}
+		
+			button.btn-success:hover {
+				background-color: #28a745;
+				color: #fff;
+			}
+		
+			#loading {
+				position: fixed;
+				left: 0;
+				top: 0;
+				width: 100%;
+				height: 100%;
+				z-index: 9999999;
+				background: rgba(255, 255, 255, 0.9);
+			}
+		
+			.loader {
+				border: 8px solid #f3f3f3;
+				border-top: 8px solid #3498db;
+				border-radius: 50%;
+				width: 70px;
+				height: 70px;
+				animation: spin 1.5s linear infinite;
+				position: absolute;
+				top: 50%;
+				left: 50%;
+				transform: translate(-50%, -50%);
+			}
+		
+			@keyframes spin {
+				0% {
+					transform: rotate(0deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
+			}
+		
+			.logo {
+				position: absolute;
+				right: 30px;
+				bottom: 30px;
+				width: 100px;
+				height: auto;
+			}
+		</style>
+		
+</head>
+
+<body>
+	<!-- <div class="main container">
+		<section class="iupload">
+			<h3 class="text-center py-4">Object Detection Using TFOD</h3>
+			<div class="row">
+				<div class="img-part col-md-6">
+					<div class="image-part">
+						<video autoplay id="video"
+							poster="https://img.freepik.com/free-vector/group-young-people-posing-photo_52683-18824.jpg?size=338&ext=jpg"></video>
+						<img src="" id="photo">
+						<canvas style="display:none;" id="canvas"></canvas>
+					</div>
+				</div>
+				<div class="col-md-6 col-xs-12 right-part">
+					<h5 class="mb-2">
+						Prediction Results
+					</h5>
+					<div class="row">
+						<div class="res-part2 col-md-2 col-xs-12"></div>
+					</div>
+				</div>
+			</div>
+		</section>
+
+		
+	</div> -->
+
+	<!-- Header -->
+<header class="bg-primary text-center py-5 mb-4">
+	<div class="container">
+	  <h1 class="font-weight-light text-white">Sign Language Detection using YOLOv5</h1>
+	</div>
+  </header>
+  
+  <!-- Page Content -->
+  <div class="container">
+
+	  
+	<form class="input-group upload-data row">	
+		<div class="col-xl-6 col-md-6 col-sm-6">
+		<button type="button" class="btn btn-primary col-12" id="uload">Upload</button>
+		</div>
+		<div class="col-xl-6 col-md-6 col-sm-6">
+			<button id="send" type="button" class="btn btn-success col-12">Predict</button>
+		</div>
+
+		<!-- change url value  -->
+
+		<input type="hidden" class="form-control mr-2" id="url" placeholder="Enter REST Api url..." value="../predict" />
+		<input name="upload" type="file" id="fileinput" style="position:absolute;top:-500px; display: none;" /><br />
+	</form>
+
+	<div class="row">
+	  <!-- Team Member 1 -->
+	  <div class="col-xl-6 col-md-6 col-sm-6 mb-6">
+		<div class="card border-0 shadow upload-image ">
+		  <!-- <img src="https://source.unsplash.com/TMgQMXoglsM/500x350" class="card-img-top" alt="..."> -->
+		  	<video autoplay id="video" poster="https://www.shutterstock.com/image-vector/basic-deaf-signs-deafmute-sign-260nw-2217576251.jpg"></video>
+			<img src="" class="" id="photo">
+			<canvas style="display:none;" id="canvas"></canvas>
+		  <!-- <div class="card-body text-center">
+			<h5 class="card-title mb-0">Team Member</h5>
+		  </div> -->
+		</div>
+	  </div>
+	  <!-- Team Member 2 -->
+	  <div class="col-xl-6 col-md-6 col-sm-6 mb-6">
+		<div class="card border-0 shadow res-part2">
+		  <div class="card-body text-center">
+			<h5 class="card-title mb-0">Prediction Results</h5>
+		  </div>
+		</div>
+	  </div>
+	</div>
+	<!-- /.row -->
+
+  
+  </div>
+  <!-- /.container -->
+
+	<img class="logo"
+		src="https://www.shutterstock.com/image-vector/basic-deaf-signs-deafmute-sign-260nw-2217576251.jpg" />
+
+
+	<div id="loading">
+		<div class="loader"></div>
+	</div>
+	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js"
+		integrity="sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous">
+	</script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js"
+		integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous">
+	</script>
+
+	<script>
+		var mybtn = document.getElementById('startbtn');
+		var myvideo = document.getElementById('video');
+		var mycanvas = document.getElementById('canvas');
+		var myphoto = document.getElementById('photo');
+		var base_data = "";
+
+		function sendRequest(base64Data) {
+			var type = "json";
+			if (base64Data != "" || base64Data != null) {
+				if (type == "imgtobase") {
+					$(".res-part").html("");
+					$(".res-part").html(base64Data);
+				} else if (type == "basetoimg") {
+					var imageData = $("#imgstring").val();
+					$(".res-part").html("");
+					$(".res-part").append("<img src='data:image/jpeg;base64," + imageData + "' alt='' />");
+				} else {
+					var url = $("#url").val();
+					$("#loading").show();
+					$.ajax({
+						url: url,
+						type: "post",
+						cache: false,
+						async: true,
+						crossDomain: true,
+						headers: {
+							'Content-Type': 'application/json',
+							'Access-Control-Allow-Origin': '*'
+						},
+						data: JSON.stringify({
+							image: base64Data
+						}),
+						success: function (res) {
+							$(".res-part").html("");
+							$(".res-part2").html("");
+							var imageData = res.image;
+							$(".res-part2").append("<img class='resp-img' src='data:image/jpeg;base64," +
+								imageData + "' alt='' />");
+							// $(".res-part").html("<pre>" + JSON.stringify(res[0], undefined, 2) + "</pre>");
+							$("#loading").hide();
+						}
+					});
+				}
+			}
+		}
+
+		$(document).ready(function () {
+			$("#loading").hide();
+
+			$('#send').click(function (evt) {
+				sendRequest(base_data);
+			});
+
+			$('#uload').click(function (evt) {
+				$('#fileinput').focus().trigger('click');
+			});
+			$("#fileinput").change(function () {
+				if (this.files && this.files[0]) {
+					var reader = new FileReader();
+					reader.onload = function (e) {
+						var url = e.target.result;
+						var img = new Image();
+						img.crossOrigin = 'Anonymous';
+						img.onload = function () {
+							var canvas = document.createElement('CANVAS');
+							var ctx = canvas.getContext('2d');
+							canvas.height = this.height;
+							canvas.width = this.width;
+							ctx.drawImage(this, 0, 0);
+							base_data = canvas.toDataURL('image/jpeg', 1.0).replace(
+								/^data:image.+;base64,/, '');
+							canvas = null;
+						};
+						img.src = url;
+						$('#photo').attr('src', url);
+						$('#photo').show();
+						$('#video').hide();
+					}
+					reader.readAsDataURL(this.files[0]);
+				}
+			});
+		});
+	</script>
+</body>
+
+</html>
